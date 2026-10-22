@@ -4,7 +4,7 @@ This is the Render-compatible production edition of the Komal & Harsh wedding in
 
 - Node 24; Next.js server, bound to Render's `PORT` on all interfaces.
 - `npm ci`, `npm test`, `npm run build`, `npm start`.
-- `render.yaml`: Singapore Starter web service named `harsh-komal`, with a 1 GB disk mounted at `/var/data`.
+- `render.yaml`: Singapore paid 0.5c-512mb web service named `harsh-komal`, with a 1 GB disk mounted at `/var/data`.
 - Wishes use SQLite on that persistent disk, with idempotent submissions and per-visitor rate limiting. The database is created at runtime, not during build. No existing guest data is copied.
 - `SQLITE_PATH=/var/data/wishes.sqlite` is required on Render. Local testing defaults to `.data/wishes.sqlite`.
 - `/api/health` checks database availability. Keep one service instance with this disk-backed design.

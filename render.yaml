@@ -3,8 +3,8 @@ services:
     name: harsh-komal
     runtime: node
     region: singapore
-    plan: starter
-    buildCommand: npm ci && npm run build
+    plan: 0.5c-512mb
+    buildCommand: npm ci --include=dev && npm test && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeployTrigger: off
