@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: "Komal & Harsh · #kompletelyharsh",
     description:
       "25 & 26 November 2026 · Golden Blossom Imperial Resort, Lucknow",
-    images: ["/assets/share-v5.jpg"],
+    images: [{ url: "/assets/share-v7.webp", width: 1200, height: 630, type: "image/webp" }],
     type: "website",
   },
   icons: { icon: "/favicon.svg" },

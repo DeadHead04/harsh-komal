@@ -28,7 +28,7 @@ const events = [
     date: "25 November 2026",
     time: "12:00 PM",
     iso: "2026-11-25T12:00:00+05:30",
-    photo: "heritage-smiles-v5.webp",
+    photo: "heritage-smiles-v7.webp",
     alt: "Komal and Harsh smiling together in traditional attire",
   },
   {
@@ -38,7 +38,7 @@ const events = [
     date: "25 November 2026",
     time: "8:00 PM",
     iso: "2026-11-25T20:00:00+05:30",
-    photo: "garden-dance-v5.webp",
+    photo: "garden-dance-v7.webp",
     alt: "Komal and Harsh holding hands and dancing on the lawn",
   },
   {
@@ -48,7 +48,7 @@ const events = [
     date: "26 November 2026",
     time: "11:00 AM",
     iso: "2026-11-26T11:00:00+05:30",
-    photo: "picnic-embrace-v5.webp",
+    photo: "picnic-embrace-v7.webp",
     alt: "Komal and Harsh laughing together at a sunset picnic",
   },
   {
@@ -58,43 +58,43 @@ const events = [
     date: "26 November 2026",
     time: "7:00 PM",
     iso: "2026-11-26T19:00:00+05:30",
-    photo: "heritage-embrace-v5.webp",
+    photo: "heritage-embrace-v7.webp",
     alt: "Komal and Harsh embracing beside a carved heritage doorway",
   },
 ];
 const photos = [
   {
-    src: "heritage-embrace-v5.webp",
+    src: "heritage-embrace-v7.webp",
     caption: "A little closer, a little more in love",
     alt: "Komal and Harsh embracing beside a carved heritage doorway",
     width: 1066, height: 1600, position: "50% 65%",
   },
   {
-    src: "picnic-embrace-v5.webp",
+    src: "picnic-embrace-v7.webp",
     caption: "Together, our favourite place to be",
     alt: "Komal and Harsh smiling at each other during a sunset picnic",
     width: 1066, height: 1600, position: "50% 78%",
   },
   {
-    src: "heritage-walk-v5.webp",
+    src: "heritage-walk-v7.webp",
     caption: "Hand in hand, into our forever",
     alt: "Komal and Harsh walking hand in hand in traditional attire",
     width: 1066, height: 1600, position: "50% 70%",
   },
   {
-    src: "garden-dance-v5.webp",
+    src: "garden-dance-v7.webp",
     caption: "Our kind of happiness",
     alt: "Komal and Harsh holding hands and dancing on the lawn",
     width: 1066, height: 1600, position: "50% 65%",
   },
   {
-    src: "heritage-smiles-v5.webp",
+    src: "heritage-smiles-v7.webp",
     caption: "The smiles we share",
     alt: "Komal playfully touching Harsh’s cheek outside a heritage doorway",
     width: 1066, height: 1600, position: "50% 65%",
   },
   {
-    src: "picnic-letter-v5.webp",
+    src: "picnic-letter-v7.webp",
     caption: "A love story, one page at a time",
     alt: "Komal and Harsh reading together on a picnic blanket",
     width: 1066, height: 692, position: "32% 50%",
@@ -424,7 +424,7 @@ function Gallery() {
                 >
                   <img
                     src={A + photo.src}
-                    srcSet={`${A + photo.src.replace(".webp", "-small.webp")} 640w, ${A + photo.src} 1066w`}
+                    srcSet={`${A + photo.src.replace(".webp", "-tiny.webp")} 400w, ${A + photo.src.replace(".webp", "-small.webp")} 640w, ${A + photo.src} 1066w`}
                     sizes="(max-width: 767px) 76vw, 310px"
                     style={{ objectPosition: photo.position }}
                     alt={photo.alt}
@@ -803,13 +803,13 @@ export default function Invitation() {
       <link
         rel="preload"
         as="image"
-        href={A + "hero-mobile.webp"}
+        href={A + "hero-mobile-v7.webp"}
         media="(max-width:1023px)"
       />
       <link
         rel="preload"
         as="image"
-        href={A + "hero-desktop.webp"}
+        href={A + "hero-desktop-v7.webp"}
         media="(min-width:1024px)"
       />
       <audio
@@ -833,7 +833,7 @@ export default function Invitation() {
         >
           <video
             ref={video}
-            poster={A + "opening-poster-v4.webp"}
+            poster={A + "opening-poster-v7.webp"}
             src={A + "opening-centered-v4.mp4"}
             muted
             playsInline
@@ -889,11 +889,11 @@ export default function Invitation() {
               <picture>
                 <source
                   media="(min-width:1024px)"
-                  srcSet={A + "hero-desktop.webp"}
+                  srcSet={A + "hero-desktop-v7.webp"}
                 />
                 <img
                   className="hero-backdrop"
-                  src={A + "hero-mobile.webp"}
+                  src={A + "hero-mobile-v7.webp"}
                   alt=""
                   width="720"
                   height="1280"
@@ -904,7 +904,7 @@ export default function Invitation() {
               <div className="hero-content">
                 <img
                   className="ganesha"
-                  src={A + "ganesha.webp"}
+                  src={A + "ganesha-v7.webp"}
                   alt="Lord Ganesha"
                   width="144"
                   height="144"
@@ -951,10 +951,13 @@ export default function Invitation() {
                 <Reveal className="couple-row" motion="left">
                   <div className="portrait-frame">
                     <img
-                      src={A + "komal-portrait-v6.webp"}
+                      src={A + "komal-portrait-v7.webp"}
+                      srcSet={`${A}komal-portrait-v7-small.webp 400w, ${A}komal-portrait-v7.webp 800w`}
+                      sizes="(max-width: 767px) min(340px, calc(100vw - 44px)), 340px"
+                      decoding="async"
                       alt="Komal Dewani, the bride"
-                      width="1024"
-                      height="1024"
+                      width="800"
+                      height="800"
                       loading="lazy"
                     />
                   </div>
@@ -974,10 +977,13 @@ export default function Invitation() {
                 <Reveal className="couple-row reverse" motion="right">
                   <div className="portrait-frame">
                     <img
-                      src={A + "harsh-portrait-v6.webp"}
+                      src={A + "harsh-portrait-v7.webp"}
+                      srcSet={`${A}harsh-portrait-v7-small.webp 400w, ${A}harsh-portrait-v7.webp 800w`}
+                      sizes="(max-width: 767px) min(340px, calc(100vw - 44px)), 340px"
+                      decoding="async"
                       alt="Harsh Gurnani, the groom"
-                      width="1024"
-                      height="1024"
+                      width="800"
+                      height="800"
                       loading="lazy"
                     />
                   </div>
@@ -1010,8 +1016,8 @@ export default function Invitation() {
                 </p>
                 <figure className="forever-photo">
                   <img
-                    src={A + "heritage-walk-v5.webp"}
-                    srcSet={`${A}heritage-walk-v5-small.webp 640w, ${A}heritage-walk-v5.webp 1066w`}
+                    src={A + "heritage-walk-v7.webp"}
+                    srcSet={`${A}heritage-walk-v7-tiny.webp 400w, ${A}heritage-walk-v7-small.webp 640w, ${A}heritage-walk-v7.webp 1066w`}
                     sizes="(max-width: 767px) calc(100vw - 62px), 532px"
                     decoding="async"
                     alt="Komal and Harsh walking hand in hand, wearing a rose sari and white kurta"
@@ -1044,7 +1050,7 @@ export default function Invitation() {
                         <div className="event-art">
                           <img
                             src={A + event.photo}
-                            srcSet={`${A + event.photo.replace(".webp", "-small.webp")} 640w, ${A + event.photo} 1066w`}
+                            srcSet={`${A + event.photo.replace(".webp", "-tiny.webp")} 400w, ${A + event.photo.replace(".webp", "-small.webp")} 640w, ${A + event.photo} 1066w`}
                             sizes="(max-width: 767px) calc(100vw - 44px), 500px"
                             alt={event.alt}
                             width="1066"
