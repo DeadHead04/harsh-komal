@@ -333,16 +333,54 @@ section:focus {
 .skip-link:focus {
   transform: none;
 }
-.reveal {
+.reveal,
+.scroll-heading {
   opacity: 1;
   transform: none;
   transition:
-    opacity 360ms ease-out,
-    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 720ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
 }
 .reveal.is-pending {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translate3d(0, 32px, 0);
+}
+.reveal[data-motion="left"].is-pending {
+  transform: translate3d(-32px, 20px, 0);
+}
+.reveal[data-motion="right"].is-pending {
+  transform: translate3d(32px, 20px, 0);
+}
+.reveal[data-motion="zoom"].is-pending {
+  transform: translate3d(0, 24px, 0) scale(0.965);
+}
+.scroll-heading.is-pending {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+}
+.scroll-heading .divider span {
+  transform: scaleX(1);
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1) 180ms;
+}
+.scroll-heading.is-pending .divider span {
+  transform: scaleX(0.2);
+}
+.reveal.is-visible .event-art img,
+.reveal.is-visible .forever-photo img {
+  animation: photo-settle 1400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+.reveal.is-visible .couple-copy {
+  animation: copy-arrive 950ms cubic-bezier(0.22, 1, 0.36, 1) 100ms both;
+}
+@keyframes photo-settle {
+  from { transform: scale(1.045); }
+  to { transform: scale(1); }
+}
+@keyframes copy-arrive {
+  from { opacity: 0; transform: translate3d(0, 16px, 0); }
+  to { opacity: 1; transform: none; }
 }
 .envelope-leaving {
   opacity: 0;
@@ -701,6 +739,7 @@ section:focus {
   text-align: center;
 }
 .forever-photo {
+  overflow: hidden;
   padding: 8px;
   background: #fffcf6;
   border: var(--card-border);
@@ -1641,11 +1680,18 @@ footer .hashtag {
   .petals > span:nth-child(n + 5) {
     display: none;
   }
-  .reveal.is-pending {
-    transform: translateY(6px);
+  .reveal,
+  .scroll-heading {
+    --reveal-delay: 0ms !important;
+    transition-duration: 650ms, 800ms;
   }
-  .reveal {
-    transition-duration: 280ms, 320ms;
+  .reveal.is-pending,
+  .reveal[data-motion="left"].is-pending,
+  .reveal[data-motion="right"].is-pending {
+    transform: translate3d(0, 24px, 0);
+  }
+  .reveal[data-motion="zoom"].is-pending {
+    transform: translate3d(0, 18px, 0) scale(0.98);
   }
   .zoom-hint {
     opacity: 1;
@@ -1670,9 +1716,13 @@ footer .hashtag {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .reveal.is-pending {
+  .reveal.is-pending,
+  .reveal[data-motion].is-pending,
+  .scroll-heading.is-pending {
+    opacity: 1;
     transform: none;
   }
+  .scroll-heading.is-pending .divider span { transform: none; }
 }
 
 .intro-loading {

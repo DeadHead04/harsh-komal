@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, type CSSProperties } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -108,9 +108,48 @@ function Divider() {
     </div>
   );
 }
+function useScrollEntrance(ref: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    let observer: IntersectionObserver | undefined;
+    const show = () => {
+      el.classList.remove("is-pending");
+      el.classList.add("is-visible");
+    };
+    const setup = () => {
+      observer?.disconnect();
+      // Already-visible content and headings inside a reveal stay readable.
+      if (reducedMotion.matches || el.parentElement?.closest(".reveal") ||
+          el.getBoundingClientRect().top < window.innerHeight * 0.9) {
+        show();
+        return;
+      }
+      el.classList.remove("is-visible");
+      el.classList.add("is-pending");
+      observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          show();
+          observer?.unobserve(el);
+        }
+      }, { threshold: 0, rootMargin: "0px 0px -8% 0px" });
+      observer.observe(el);
+    };
+    setup();
+    reducedMotion.addEventListener("change", setup);
+    return () => {
+      observer?.disconnect();
+      reducedMotion.removeEventListener("change", setup);
+      el.classList.remove("is-pending", "is-visible");
+    };
+  }, [ref]);
+}
 function Heading({ eyebrow, title }: { eyebrow?: string; title: string }) {
+  const ref = useRef<HTMLElement>(null);
+  useScrollEntrance(ref);
   return (
-    <header className="section-heading">
+    <header ref={ref} className="section-heading scroll-heading">
       {eyebrow && <p className="eyebrow">{eyebrow}</p>}
       <h2>{title}</h2>
       <Divider />
@@ -120,35 +159,19 @@ function Heading({ eyebrow, title }: { eyebrow?: string; title: string }) {
 function Reveal({
   children,
   className = "",
+  motion = "rise",
+  delay = 0,
 }: {
   children: React.ReactNode;
   className?: string;
+  motion?: "rise" | "left" | "right" | "zoom";
+  delay?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.classList.remove("is-pending");
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (el.getBoundingClientRect().top <= window.innerHeight) return;
-    el.classList.add("is-pending");
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.remove("is-pending");
-          io.unobserve(el);
-        }
-      },
-      { threshold: 0, rootMargin: "0px 0px 80px 0px" },
-    );
-    io.observe(el);
-    return () => {
-      io.disconnect();
-      el.classList.remove("is-pending");
-    };
-  }, []);
+  useScrollEntrance(ref);
   return (
-    <div ref={ref} className={"reveal " + className}>
+    <div ref={ref} className={"reveal " + className} data-motion={motion}
+      style={{ "--reveal-delay": `${delay}ms` } as CSSProperties}>
       {children}
     </div>
   );
@@ -917,18 +940,18 @@ export default function Invitation() {
               </a>
             </section>
             <section className="section save-date" id="save-date">
-              <div className="narrow">
+              <Reveal className="narrow" motion="zoom">
                 <Divider />
                 <ScratchDate />
-              </div>
+              </Reveal>
             </section>
             <section className="section couple-section" id="couple">
               <div className="wide">
                 <Heading title="Meet the Couple" />
-                <Reveal className="couple-row">
+                <Reveal className="couple-row" motion="left">
                   <div className="portrait-frame">
                     <img
-                      src={A + "komal-portrait-v5.webp"}
+                      src={A + "komal-portrait-v6.webp"}
                       alt="Komal Dewani, the bride"
                       width="1024"
                       height="1024"
@@ -948,10 +971,10 @@ export default function Invitation() {
                     <Divider />
                   </div>
                 </Reveal>
-                <Reveal className="couple-row reverse">
+                <Reveal className="couple-row reverse" motion="right">
                   <div className="portrait-frame">
                     <img
-                      src={A + "harsh-portrait-v5.webp"}
+                      src={A + "harsh-portrait-v6.webp"}
                       alt="Harsh Gurnani, the groom"
                       width="1024"
                       height="1024"
@@ -980,7 +1003,7 @@ export default function Invitation() {
               </div>
             </section>
             <section className="forever-section">
-              <Reveal className="narrow">
+              <Reveal className="narrow" motion="zoom">
                 <Heading eyebrow="A new chapter" title="Our Forever Begins" />
                 <p className="intro">
                   Two hearts, two families, and a lifetime of moments to come.
@@ -1016,7 +1039,7 @@ export default function Invitation() {
                 </p>
                 <div className="events-grid">
                   {events.map((event, i) => (
-                    <Reveal key={event.name}>
+                    <Reveal key={event.name} motion={i % 2 === 0 ? "left" : "right"} delay={(i % 2) * 140}>
                       <article className={"event-card event-" + i}>
                         <div className="event-art">
                           <img
@@ -1089,7 +1112,7 @@ export default function Invitation() {
                       names: ["Mr. Sunil Gurnani", "Mrs. Varsha Gurnani"],
                     },
                   ].map((f) => (
-                    <Reveal key={f.title}>
+                    <Reveal key={f.title} motion="zoom">
                       <article className="family-card">
                         <p className="eyebrow">{f.title}</p>
                         <Divider />
