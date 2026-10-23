@@ -28,8 +28,8 @@ const events = [
     date: "25 November 2026",
     time: "12:00 PM",
     iso: "2026-11-25T12:00:00+05:30",
-    photo: "heritage-smiles-v7.webp",
-    alt: "Komal and Harsh smiling together in traditional attire",
+    photo: "event-mehendi-v8.webp",
+    alt: "Komal and Harsh seated in a marigold garden in Mehendi outfits",
   },
   {
     name: "Sangeet",
@@ -38,8 +38,8 @@ const events = [
     date: "25 November 2026",
     time: "8:00 PM",
     iso: "2026-11-25T20:00:00+05:30",
-    photo: "garden-dance-v7.webp",
-    alt: "Komal and Harsh holding hands and dancing on the lawn",
+    photo: "event-sangeet-v8.webp",
+    alt: "Komal and Harsh dancing under evening lights in Sangeet outfits",
   },
   {
     name: "Haldi",
@@ -48,8 +48,8 @@ const events = [
     date: "26 November 2026",
     time: "11:00 AM",
     iso: "2026-11-26T11:00:00+05:30",
-    photo: "picnic-embrace-v7.webp",
-    alt: "Komal and Harsh laughing together at a sunset picnic",
+    photo: "event-haldi-v8.webp",
+    alt: "Komal and Harsh walking through a sunlit courtyard in yellow Haldi outfits",
   },
   {
     name: "Wedding",
@@ -58,8 +58,8 @@ const events = [
     date: "26 November 2026",
     time: "7:00 PM",
     iso: "2026-11-26T19:00:00+05:30",
-    photo: "heritage-embrace-v7.webp",
-    alt: "Komal and Harsh embracing beside a carved heritage doorway",
+    photo: "event-wedding-v8.webp",
+    alt: "Komal and Harsh in wedding attire beneath a floral arch at twilight",
   },
 ];
 const photos = [
@@ -977,8 +977,8 @@ export default function Invitation() {
                 <Reveal className="couple-row reverse" motion="right">
                   <div className="portrait-frame">
                     <img
-                      src={A + "harsh-portrait-v7.webp"}
-                      srcSet={`${A}harsh-portrait-v7-small.webp 400w, ${A}harsh-portrait-v7.webp 800w`}
+                      src={A + "harsh-portrait-v8.webp"}
+                      srcSet={`${A}harsh-portrait-v8-small.webp 400w, ${A}harsh-portrait-v8.webp 800w`}
                       sizes="(max-width: 767px) min(340px, calc(100vw - 44px)), 340px"
                       decoding="async"
                       alt="Harsh Gurnani, the groom"
@@ -1050,11 +1050,11 @@ export default function Invitation() {
                         <div className="event-art">
                           <img
                             src={A + event.photo}
-                            srcSet={`${A + event.photo.replace(".webp", "-tiny.webp")} 400w, ${A + event.photo.replace(".webp", "-small.webp")} 640w, ${A + event.photo} 1066w`}
+                            srcSet={`${A + event.photo.replace(".webp", "-tiny.webp")} 400w, ${A + event.photo.replace(".webp", "-small.webp")} 640w, ${A + event.photo} 1200w`}
                             sizes="(max-width: 767px) calc(100vw - 44px), 500px"
                             alt={event.alt}
-                            width="1066"
-                            height="1600"
+                            width="1200"
+                            height="800"
                             loading="lazy"
                             decoding="async"
                           />

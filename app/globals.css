@@ -968,7 +968,7 @@ section:focus {
 }
 .event-art {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
   background: #e4ddce;
 }
