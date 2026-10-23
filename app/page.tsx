@@ -28,7 +28,8 @@ const events = [
     date: "25 November 2026",
     time: "12:00 PM",
     iso: "2026-11-25T12:00:00+05:30",
-    photo: "event-mehendi-v3.webp",
+    photo: "heritage-smiles-v5.webp",
+    alt: "Komal and Harsh smiling together in traditional attire",
   },
   {
     name: "Sangeet",
@@ -37,7 +38,8 @@ const events = [
     date: "25 November 2026",
     time: "8:00 PM",
     iso: "2026-11-25T20:00:00+05:30",
-    photo: "event-sangeet-v3.webp",
+    photo: "garden-dance-v5.webp",
+    alt: "Komal and Harsh holding hands and dancing on the lawn",
   },
   {
     name: "Haldi",
@@ -46,7 +48,8 @@ const events = [
     date: "26 November 2026",
     time: "11:00 AM",
     iso: "2026-11-26T11:00:00+05:30",
-    photo: "event-haldi-v3.webp",
+    photo: "picnic-embrace-v5.webp",
+    alt: "Komal and Harsh laughing together at a sunset picnic",
   },
   {
     name: "Wedding",
@@ -55,56 +58,49 @@ const events = [
     date: "26 November 2026",
     time: "7:00 PM",
     iso: "2026-11-26T19:00:00+05:30",
-    photo: "event-wedding-v3.webp",
+    photo: "heritage-embrace-v5.webp",
+    alt: "Komal and Harsh embracing beside a carved heritage doorway",
   },
 ];
 const photos = [
   {
-    src: "garden-portrait.webp",
-    caption: "Together, our favourite place to be",
-    alt: "Komal and Harsh together in a garden portrait",
-  },
-  {
-    src: "evening-portrait.webp",
+    src: "heritage-embrace-v5.webp",
     caption: "A little closer, a little more in love",
-    alt: "Komal and Harsh in a warm evening portrait",
+    alt: "Komal and Harsh embracing beside a carved heritage doorway",
+    width: 1066, height: 1600, position: "50% 65%",
   },
   {
-    src: "lakeside-back-view-v4.webp",
+    src: "picnic-embrace-v5.webp",
+    caption: "Together, our favourite place to be",
+    alt: "Komal and Harsh smiling at each other during a sunset picnic",
+    width: 1066, height: 1600, position: "50% 78%",
+  },
+  {
+    src: "heritage-walk-v5.webp",
     caption: "Hand in hand, into our forever",
-    alt: "Komal and Harsh in blush and ivory traditional outfits overlooking a palace lake",
+    alt: "Komal and Harsh walking hand in hand in traditional attire",
+    width: 1066, height: 1600, position: "50% 70%",
   },
   {
-    src: "evening-back-view.webp",
-    caption: "A lifetime of sunsets, side by side",
-    alt: "A rear-view portrait of Komal and Harsh overlooking an illuminated courtyard",
-  },
-  {
-    src: "closeup.webp",
-    caption: "The smiles we share",
-    alt: "Komal and Harsh smiling together",
-  },
-  {
-    src: "memory-temple.webp",
-    caption: "Beautiful moments, treasured together",
-    alt: "Komal and Harsh visiting a temple",
-  },
-  {
-    src: "memory-evening.webp",
+    src: "garden-dance-v5.webp",
     caption: "Our kind of happiness",
-    alt: "A candid moment of Komal and Harsh together",
+    alt: "Komal and Harsh holding hands and dancing on the lawn",
+    width: 1066, height: 1600, position: "50% 65%",
   },
   {
-    src: "memory-blue.webp",
-    caption: "You, me and all that is to come",
-    alt: "Komal and Harsh in their original blue-dress photograph",
+    src: "heritage-smiles-v5.webp",
+    caption: "The smiles we share",
+    alt: "Komal playfully touching Harsh’s cheek outside a heritage doorway",
+    width: 1066, height: 1600, position: "50% 65%",
   },
   {
-    src: "memory-mirror.webp",
-    caption: "Finding joy in the everyday",
-    alt: "Komal and Harsh taking a mirror photograph",
+    src: "picnic-letter-v5.webp",
+    caption: "A love story, one page at a time",
+    alt: "Komal and Harsh reading together on a picnic blanket",
+    width: 1066, height: 692, position: "32% 50%",
   },
 ];
+
 function Divider() {
   return (
     <div className="divider" aria-hidden="true">
@@ -405,10 +401,13 @@ function Gallery() {
                 >
                   <img
                     src={A + photo.src}
+                    srcSet={`${A + photo.src.replace(".webp", "-small.webp")} 640w, ${A + photo.src} 1066w`}
+                    sizes="(max-width: 767px) 76vw, 310px"
+                    style={{ objectPosition: photo.position }}
                     alt={photo.alt}
                     loading="lazy"
-                    width="1024"
-                    height="1536"
+                    width={photo.width}
+                    height={photo.height}
                   />
                   <span className="zoom-hint">View photograph</span>
                 </button>
@@ -929,7 +928,7 @@ export default function Invitation() {
                 <Reveal className="couple-row">
                   <div className="portrait-frame">
                     <img
-                      src={A + "komal-portrait.webp"}
+                      src={A + "komal-portrait-v5.webp"}
                       alt="Komal Dewani, the bride"
                       width="1024"
                       height="1024"
@@ -952,7 +951,7 @@ export default function Invitation() {
                 <Reveal className="couple-row reverse">
                   <div className="portrait-frame">
                     <img
-                      src={A + "harsh-portrait.webp"}
+                      src={A + "harsh-portrait-v5.webp"}
                       alt="Harsh Gurnani, the groom"
                       width="1024"
                       height="1024"
@@ -988,13 +987,13 @@ export default function Invitation() {
                 </p>
                 <figure className="forever-photo">
                   <img
-                    src={A + "lakeside-back-view-v4.webp"}
-                    srcSet={`${A}lakeside-back-view-v4-small.webp 640w, ${A}lakeside-back-view-v4.webp 1024w`}
+                    src={A + "heritage-walk-v5.webp"}
+                    srcSet={`${A}heritage-walk-v5-small.webp 640w, ${A}heritage-walk-v5.webp 1066w`}
                     sizes="(max-width: 767px) calc(100vw - 62px), 532px"
                     decoding="async"
-                    alt="Komal and Harsh, hand in hand on a lakeside palace terrace in blush and ivory traditional outfits"
-                    width="1024"
-                    height="1536"
+                    alt="Komal and Harsh walking hand in hand, wearing a rose sari and white kurta"
+                    width="1066"
+                    height="1600"
                     loading="lazy"
                   />
                 </figure>
@@ -1022,11 +1021,11 @@ export default function Invitation() {
                         <div className="event-art">
                           <img
                             src={A + event.photo}
-                            srcSet={`${A + event.photo.replace(".webp", "-small.webp")} 640w, ${A + event.photo} 1200w`}
+                            srcSet={`${A + event.photo.replace(".webp", "-small.webp")} 640w, ${A + event.photo} 1066w`}
                             sizes="(max-width: 767px) calc(100vw - 44px), 500px"
-                            alt={`Komal and Harsh — ${event.name === "Mehendi" ? "seated in a marigold garden" : event.name === "Sangeet" ? "dancing under evening lights" : event.name === "Haldi" ? "walking through a sunlit courtyard" : "looking toward a floral arch at twilight"}`}
-                            width="1536"
-                            height="1024"
+                            alt={event.alt}
+                            width="1066"
+                            height="1600"
                             loading="lazy"
                             decoding="async"
                           />
