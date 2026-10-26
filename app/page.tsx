@@ -645,9 +645,6 @@ function Wishes() {
             <p className="form-status" role="status">
               {status}
             </p>
-            <a className="guestbook-link" href="/wishes">
-              Read all wishes <ArrowUpRight size={16} aria-hidden="true" />
-            </a>
           </form>
         </Reveal>
       </div>
