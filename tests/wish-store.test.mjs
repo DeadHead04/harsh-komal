@@ -37,7 +37,7 @@ test('guestbook pages expose all wishes with stable ordering, literal search and
   assert.equal(store.page({query:"' OR 1=1 --"}).matched,0);
   assert.equal(store.page({page:999}).page,3);
   assert.equal(store.page({page:NaN}).page,1);
-  assert.deepEqual(Object.keys(first.wishes[0]).sort(),['createdAt','id','message','name']);
+  assert.deepEqual(Object.keys(first.wishes[0]).sort(),['createdAt','id','message','name','translation']);
  } finally {store.close();}
 });
 
@@ -55,5 +55,6 @@ test('English translations persist separately and never replace original wishes'
   assert.equal(store.get(wish.id).message,wish.message);
   assert.equal(store.get(wish.id).name,wish.name);
   assert.equal(store.page().total,1);
+  assert.deepEqual({...store.page().wishes[0].translation},translation);
  } finally {store.close();rmSync(folder,{recursive:true,force:true});}
 });

@@ -4,34 +4,56 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Heart, Languages, RefreshCw, Search, X } from "lucide-react";
 import styles from "./wishes.module.css";
 
-type Wish = { id: string; name: string; message: string; createdAt: number };
+type Translation = { name: string; message: string; language: string };
+type Wish = { id: string; name: string; message: string; createdAt: number; translation?: Translation | null };
 type GuestbookData = { wishes: Wish[]; total: number; matched: number; page: number; pages: number; pageSize: number };
 const date = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" });
 const time = new Intl.DateTimeFormat("en-IN", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" });
 const initials = (name: string) => name.trim().split(/\s+/).slice(0, 2).map(word => Array.from(word)[0]).join("").toLocaleUpperCase();
 
+let translationQueue: Promise<unknown> = Promise.resolve();
+function requestTranslation(id: string): Promise<Translation> {
+  const job = translationQueue.catch(() => {}).then(async () => {
+    const response = await fetch("/api/wishes/translate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Translation is unavailable. Please try again.");
+    return result.translation as Translation;
+  });
+  translationQueue = job;
+  return job;
+}
+const hasNonLatinLetters = (text: string) => Array.from(text).some(char => /\p{Letter}/u.test(char) && !/\p{Script=Latin}/u.test(char));
+
 function WishCard({ wish }: { wish: Wish }) {
   const [expanded, setExpanded] = useState(false);
-  const [translation, setTranslation] = useState<{ name: string; message: string; language: string } | null>(null);
-  const [english, setEnglish] = useState(false);
+  const [translation, setTranslation] = useState<Translation | null>(wish.translation || null);
+  const [english, setEnglish] = useState(true);
   const [translating, setTranslating] = useState(false);
   const [translationError, setTranslationError] = useState("");
   const shownMessage = english && translation ? translation.message : wish.message;
   const shownName = english && translation ? translation.name : wish.name;
   async function toggleTranslation() {
-    if (english) { setEnglish(false); return; }
+    if (english && translation) { setEnglish(false); return; }
     if (translation) { setEnglish(true); return; }
     setTranslating(true);
     setTranslationError("");
     try {
-      const response = await fetch("/api/wishes/translate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: wish.id }) });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Translation is unavailable. Please try again.");
-      setTranslation(result.translation);
+      setTranslation(await requestTranslation(wish.id));
       setEnglish(true);
     } catch (error) { setTranslationError(error instanceof Error ? error.message : "Please try again."); }
     finally { setTranslating(false); }
   }
+  useEffect(() => {
+    if (wish.translation) { setTranslation(wish.translation); return; }
+    if (!hasNonLatinLetters(wish.name + wish.message)) return;
+    let cancelled = false;
+    setTranslating(true);
+    requestTranslation(wish.id)
+      .then(value => { if (!cancelled) { setTranslation(value); setTranslationError(""); } })
+      .catch(() => { if (!cancelled) setTranslationError("English translation is unavailable just now. Showing the original; you can try again."); })
+      .finally(() => { if (!cancelled) setTranslating(false); });
+    return () => { cancelled = true; };
+  }, [wish.id, wish.name, wish.message, wish.translation?.message]);
   const [truncated, setTruncated] = useState(false);
   const message = useRef<HTMLParagraphElement>(null);
   useEffect(() => {
@@ -49,9 +71,9 @@ function WishCard({ wish }: { wish: Wish }) {
         <span className={styles.avatar} aria-hidden="true">{initials(shownName)}</span>
         <div><h3 dir="auto">{shownName}</h3><time dateTime={new Date(wish.createdAt).toISOString()}>{date.format(wish.createdAt)} <span aria-hidden="true">·</span> {time.format(wish.createdAt)} IST</time></div>
       </header>
-      <p id={`wish-${wish.id}`} ref={message} dir="auto" lang={english ? "en" : undefined} className={`${styles.message} ${expanded ? "" : styles.collapsed}`}>{shownMessage}</p>
+      <p id={`wish-${wish.id}`} ref={message} dir="auto" lang={english && translation ? "en" : undefined} className={`${styles.message} ${expanded ? "" : styles.collapsed}`}>{shownMessage}</p>
       {(truncated || expanded) && <button className={styles.readMore} aria-expanded={expanded} aria-controls={`wish-${wish.id}`} onClick={() => setExpanded(value => !value)}>{expanded ? "Show less" : "Read full wish"}</button>}
-      <button className={styles.translate} onClick={toggleTranslation} disabled={translating} aria-pressed={english}><Languages size={15} aria-hidden="true" />{translating ? "Translating…" : english ? "Show original" : "Translate to English"}</button>
+      <button className={styles.translate} onClick={toggleTranslation} disabled={translating} aria-pressed={english && !!translation}><Languages size={15} aria-hidden="true" />{translating ? "Translating…" : english && translation ? "Show original" : "Translate to English"}</button>
       {english && translation && <p className={styles.translationNote}>{translation.language === "English" ? "This wish is already in English." : `Translated from ${translation.language} · AI translation`}</p>}
       {translationError && <p className={styles.translationError} role="status">{translationError}</p>}
       <footer className={styles.noteFooter}><span className={styles.line} /><Heart size={14} aria-hidden="true" /><span>With love</span></footer>
