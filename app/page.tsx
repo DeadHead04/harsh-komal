@@ -8,7 +8,6 @@ import {
   VolumeX,
   MapPin,
   ArrowUpRight,
-  Heart,
   Send,
   CalendarDays,
   ArrowDown,
@@ -557,41 +556,10 @@ function calendarDownload() {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-type Wish = { id: string; name: string; message: string; createdAt: number };
 function Wishes() {
-  const [wishes, setWishes] = useState<Wish[]>([]),
-    [status, setStatus] = useState(""),
-    [loading, setLoading] = useState(true),
-    [busy, setBusy] = useState(false),
-    [active, setActive] = useState(0),
-    [loadError, setLoadError] = useState(false);
+  const [status, setStatus] = useState(""),
+    [busy, setBusy] = useState(false);
   const requestId = useRef<string | null>(null);
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch("/api/wishes");
-      if (!res.ok) throw new Error();
-      const data = (await res.json()) as { wishes: Wish[] };
-      setWishes(data.wishes);
-      setLoadError(false);
-    } catch {
-      setLoadError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-  useEffect(() => {
-    load();
-    const id = setInterval(load, 30000);
-    return () => clearInterval(id);
-  }, [load]);
-  useEffect(() => {
-    if (wishes.length < 2) return;
-    const id = setInterval(
-      () => setActive((i) => (i + 1) % wishes.length),
-      6000,
-    );
-    return () => clearInterval(id);
-  }, [wishes.length]);
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (busy) return;
@@ -619,8 +587,6 @@ function Wishes() {
       form.reset();
       requestId.current = null;
       setStatus("Your wish has been received. Thank you for the love!");
-      await load();
-      setActive(0);
     } catch (error) {
       setStatus(
         error instanceof Error
@@ -631,7 +597,6 @@ function Wishes() {
       setBusy(false);
     }
   };
-  const shown = wishes[active % Math.max(1, wishes.length)];
   return (
     <section id="wishes" className="wishes-section">
       <div className="narrow">
@@ -680,61 +645,10 @@ function Wishes() {
             <p className="form-status" role="status">
               {status}
             </p>
+            <a className="guestbook-link" href="/wishes">
+              Read all wishes <ArrowUpRight size={16} aria-hidden="true" />
+            </a>
           </form>
-        </Reveal>
-        <Reveal className="wish-wall">
-          <Heading
-            eyebrow="From our loved ones"
-            title="Wishes for the Couple"
-          />
-          {loading ? (
-            <p>Gathering your lovely wishes…</p>
-          ) : loadError ? (
-            <p>
-              We couldn’t load the wishes just now.{" "}
-              <button className="text-button" onClick={load}>
-                Try again
-              </button>
-            </p>
-          ) : shown ? (
-            <>
-              <div className="wish-quote">
-                <Heart aria-hidden="true" />
-                <blockquote>“{shown.message}”</blockquote>
-                <p className="eyebrow">— {shown.name}</p>
-              </div>
-              {wishes.length > 1 && (
-                <div className="wish-controls">
-                  <button
-                    className="round"
-                    aria-label="Previous wish"
-                    onClick={() =>
-                      setActive((i) => (i + wishes.length - 1) % wishes.length)
-                    }
-                  >
-                    <ChevronLeft />
-                  </button>
-                  <span>
-                    {(active % wishes.length) + 1} / {wishes.length}
-                  </span>
-                  <button
-                    className="round"
-                    aria-label="Next wish"
-                    onClick={() => setActive((i) => (i + 1) % wishes.length)}
-                  >
-                    <ChevronRight />
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="empty-wishes">
-              <Heart />
-              <p>The first wish is waiting to be yours.</p>
-              <p>Leave a message for the beginning of their forever.</p>
-            </div>
-          )}
-          <a className="guestbook-link" href="/wishes">Read all wishes <ArrowUpRight size={16} aria-hidden="true" /></a>
         </Reveal>
       </div>
     </section>
