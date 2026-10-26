@@ -734,6 +734,7 @@ function Wishes() {
               <p>Leave a message for the beginning of their forever.</p>
             </div>
           )}
+          <a className="guestbook-link" href="/wishes">Read all wishes <ArrowUpRight size={16} aria-hidden="true" /></a>
         </Reveal>
       </div>
     </section>

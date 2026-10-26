@@ -1734,3 +1734,14 @@ footer .hashtag {
   color: #765e42;
   font-size: 16px;
 }
+
+.guestbook-link {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:44px;
+  margin-top:26px;
+  color:var(--rose-deep);
+  text-underline-offset:5px;
+  font-size:20px;
+}

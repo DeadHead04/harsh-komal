@@ -20,3 +20,23 @@ test('wishes persist on disk, retries are idempotent, and rate limits are per vi
   assert.equal('visitorHash' in store.list()[0],false);
  } finally { store.close(); rmSync(folder,{recursive:true,force:true}); }
 });
+
+test('guestbook pages expose all wishes with stable ordering, literal search and public fields', () => {
+ const store=createWishStore(':memory:');
+ try {
+  for(let i=0;i<26;i++) store.add({id:`wish-${String(i).padStart(2,'0')}`,name:i===13?'Asha & Family':'Guest '+i,message:i===13?'100% love_ and happiness!':'A beautiful beginning',visitorHash:'visitor-'+i,createdAt:100000+Math.floor(i/2)});
+  const first=store.page();
+  assert.equal(first.total,26); assert.equal(first.pages,3); assert.equal(first.wishes.length,12);
+  const all=[...first.wishes,...store.page({page:2}).wishes,...store.page({page:3}).wishes];
+  assert.equal(new Set(all.map(wish=>wish.id)).size,26);
+  assert.equal(all[0].id,'wish-25'); assert.equal(all.at(-1).id,'wish-00');
+  assert.equal(store.page({order:'oldest'}).wishes[0].id,'wish-00');
+  assert.equal(store.page({query:'asha'}).matched,1);
+  assert.equal(store.page({query:'%'}).matched,1);
+  assert.equal(store.page({query:'_'}).matched,1);
+  assert.equal(store.page({query:"' OR 1=1 --"}).matched,0);
+  assert.equal(store.page({page:999}).page,3);
+  assert.equal(store.page({page:NaN}).page,1);
+  assert.deepEqual(Object.keys(first.wishes[0]).sort(),['createdAt','id','message','name']);
+ } finally {store.close();}
+});

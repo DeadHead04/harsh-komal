@@ -3,8 +3,16 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const json = (data: unknown, status = 200) =>
   Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const params = new URL(request.url).searchParams;
+    if (params.get("view") === "guestbook") {
+      return json(getWishStore().page({
+        query: (params.get("q") || "").slice(0, 100),
+        order: params.get("order") === "oldest" ? "oldest" : "newest",
+        page: Number(params.get("page") || 1),
+      }));
+    }
     const rows = getWishStore().list();
     return json({ wishes: rows });
   } catch {

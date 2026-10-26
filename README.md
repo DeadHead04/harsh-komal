@@ -10,3 +10,10 @@ This is the Render-compatible production edition of the Komal & Harsh wedding in
 - `/api/health` checks database availability. Keep one service instance with this disk-backed design.
 - All invitation media, the music beginning at 38 seconds, and the Festeve360 WhatsApp CTA are bundled. No image-generation API keys are required or included.
 - Render service creation and deployment must be confirmed separately; this repository alone does not indicate a live deployment.
+
+## Wishes guestbook
+
+- `/wishes` is a standalone public guestbook with names, full messages, IST timestamps, search, sorting and 12-item pagination. The invitation links to it from the wishes wall.
+- `/api/wishes?view=guestbook&q=&order=newest&page=1` returns paginated public fields plus counts. Existing `/api/wishes` callers retain their original response shape.
+- The generated hero uses optimized WebP assets (`wishes-hero-v1.webp`, 57 KB; mobile 20 KB). No API call is made by the website for image generation.
+- Local preview fixtures are kept only in an ignored `.data/wishes-page-preview.sqlite` file and are never deployed.
