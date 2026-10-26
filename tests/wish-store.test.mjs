@@ -40,3 +40,20 @@ test('guestbook pages expose all wishes with stable ordering, literal search and
   assert.deepEqual(Object.keys(first.wishes[0]).sort(),['createdAt','id','message','name']);
  } finally {store.close();}
 });
+
+test('English translations persist separately and never replace original wishes', () => {
+ const folder=mkdtempSync(join(tmpdir(),'harsh-komal-translations-'));
+ let store=createWishStore(join(folder,'wishes.sqlite'));
+ try {
+  const wish={id:'translation-test',name:'Лира',message:'С любовью!',visitorHash:'visitor-translation',createdAt:100000};
+  store.add(wish);
+  const translation={name:'Lira',message:'With love!',language:'Russian'};
+  store.saveTranslation(wish.id,translation);
+  store.saveTranslation(wish.id,{...translation,message:'Should not overwrite cached translation'});
+  store.close(); store=createWishStore(join(folder,'wishes.sqlite'));
+  assert.deepEqual({...store.translation(wish.id)},translation);
+  assert.equal(store.get(wish.id).message,wish.message);
+  assert.equal(store.get(wish.id).name,wish.name);
+  assert.equal(store.page().total,1);
+ } finally {store.close();rmSync(folder,{recursive:true,force:true});}
+});

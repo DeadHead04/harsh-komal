@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Heart, RefreshCw, Search, X } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Heart, Languages, RefreshCw, Search, X } from "lucide-react";
 import styles from "./wishes.module.css";
 
 type Wish = { id: string; name: string; message: string; createdAt: number };
@@ -10,6 +10,55 @@ const date = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", 
 const time = new Intl.DateTimeFormat("en-IN", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" });
 const initials = (name: string) => name.trim().split(/\s+/).slice(0, 2).map(word => Array.from(word)[0]).join("").toLocaleUpperCase();
 
+function WishCard({ wish }: { wish: Wish }) {
+  const [expanded, setExpanded] = useState(false);
+  const [translation, setTranslation] = useState<{ name: string; message: string; language: string } | null>(null);
+  const [english, setEnglish] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [translationError, setTranslationError] = useState("");
+  const shownMessage = english && translation ? translation.message : wish.message;
+  const shownName = english && translation ? translation.name : wish.name;
+  async function toggleTranslation() {
+    if (english) { setEnglish(false); return; }
+    if (translation) { setEnglish(true); return; }
+    setTranslating(true);
+    setTranslationError("");
+    try {
+      const response = await fetch("/api/wishes/translate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: wish.id }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Translation is unavailable. Please try again.");
+      setTranslation(result.translation);
+      setEnglish(true);
+    } catch (error) { setTranslationError(error instanceof Error ? error.message : "Please try again."); }
+    finally { setTranslating(false); }
+  }
+  const [truncated, setTruncated] = useState(false);
+  const message = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    const element = message.current;
+    if (!element || expanded) return;
+    const measure = () => setTruncated(element.scrollHeight > element.clientHeight + 1);
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    measure();
+    return () => observer.disconnect();
+  }, [shownMessage, expanded]);
+  return (
+    <article className={styles.note}>
+      <header className={styles.noteHeader}>
+        <span className={styles.avatar} aria-hidden="true">{initials(shownName)}</span>
+        <div><h3 dir="auto">{shownName}</h3><time dateTime={new Date(wish.createdAt).toISOString()}>{date.format(wish.createdAt)} <span aria-hidden="true">·</span> {time.format(wish.createdAt)} IST</time></div>
+      </header>
+      <p id={`wish-${wish.id}`} ref={message} dir="auto" lang={english ? "en" : undefined} className={`${styles.message} ${expanded ? "" : styles.collapsed}`}>{shownMessage}</p>
+      {(truncated || expanded) && <button className={styles.readMore} aria-expanded={expanded} aria-controls={`wish-${wish.id}`} onClick={() => setExpanded(value => !value)}>{expanded ? "Show less" : "Read full wish"}</button>}
+      <button className={styles.translate} onClick={toggleTranslation} disabled={translating} aria-pressed={english}><Languages size={15} aria-hidden="true" />{translating ? "Translating…" : english ? "Show original" : "Translate to English"}</button>
+      {english && translation && <p className={styles.translationNote}>{translation.language === "English" ? "This wish is already in English." : `Translated from ${translation.language} · AI translation`}</p>}
+      {translationError && <p className={styles.translationError} role="status">{translationError}</p>}
+      <footer className={styles.noteFooter}><span className={styles.line} /><Heart size={14} aria-hidden="true" /><span>With love</span></footer>
+    </article>
+  );
+}
+
 export default function Guestbook() {
   const [data, setData] = useState<GuestbookData | null>(null);
   const [draft, setDraft] = useState("");
@@ -17,6 +66,8 @@ export default function Guestbook() {
   const [refresh, setRefresh] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
+  const lastRequest = useRef(0);
   const listHeading = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -26,16 +77,33 @@ export default function Guestbook() {
 
   useEffect(() => {
     const controller = new AbortController();
+    lastRequest.current = Date.now();
     setLoading(true);
     setError(false);
     const params = new URLSearchParams({ view: "guestbook", q: filters.query, order: filters.order, page: String(filters.page) });
     fetch(`/api/wishes?${params}`, { signal: controller.signal, cache: "no-store" })
       .then(response => { if (!response.ok) throw new Error("Unavailable"); return response.json(); })
-      .then((result: GuestbookData) => { if (!controller.signal.aborted) setData(result); })
+      .then((result: GuestbookData) => { if (!controller.signal.aborted) { setData(result); setUpdatedAt(Date.now()); } })
       .catch(() => { if (!controller.signal.aborted) setError(true); })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
   }, [filters, refresh]);
+
+  useEffect(() => {
+    const update = () => {
+      if (document.visibilityState === "visible" && Date.now() - lastRequest.current >= 10000) setRefresh(value => value + 1);
+    };
+    const timer = setInterval(update, 30000);
+    document.addEventListener("visibilitychange", update);
+    window.addEventListener("focus", update);
+    window.addEventListener("online", update);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", update);
+      window.removeEventListener("focus", update);
+      window.removeEventListener("online", update);
+    };
+  }, []);
 
   function changePage(page: number) {
     setFilters(previous => ({ ...previous, page }));
@@ -92,11 +160,13 @@ export default function Guestbook() {
         </div>
 
         <div className={styles.resultsLine}>
-          <p role="status">{loading ? "Gathering your lovely wishes…" : error ? "Wishes couldn’t be updated." : data ? filters.query ? `${data.matched} ${data.matched === 1 ? "wish" : "wishes"} found` : `${data.total} ${data.total === 1 ? "wish" : "wishes"}, sent with love` : ""}</p>
+          <p role="status">{loading ? "Gathering your lovely wishes…" : error ? "Couldn’t update. Please refresh to try again." : data ? filters.query ? `${data.matched} ${data.matched === 1 ? "wish" : "wishes"} found` : `${data.total} ${data.total === 1 ? "wish" : "wishes"}, sent with love` : ""}</p>
           <span>Dates &amp; times in IST</span>
         </div>
 
-        {error ? (
+        <p className={styles.autoUpdate}>Updates automatically every 30 seconds{updatedAt ? ` · Last updated ${time.format(updatedAt)} IST` : ""}</p>
+
+        {error && !data ? (
           <div className={styles.empty} role="alert">
             <Heart size={28} aria-hidden="true" />
             <h3>A little pause</h3>
@@ -114,16 +184,7 @@ export default function Guestbook() {
           </div>
         ) : (
           <div className={styles.grid} aria-busy={loading}>
-            {data.wishes.map(wish => (
-              <article className={styles.note} key={wish.id}>
-                <header className={styles.noteHeader}>
-                  <span className={styles.avatar} aria-hidden="true">{initials(wish.name)}</span>
-                  <div><h3>{wish.name}</h3><time dateTime={new Date(wish.createdAt).toISOString()}>{date.format(wish.createdAt)} <span aria-hidden="true">·</span> {time.format(wish.createdAt)} IST</time></div>
-                </header>
-                <p className={styles.message}>{wish.message}</p>
-                <footer className={styles.noteFooter}><span className={styles.line} /><Heart size={14} aria-hidden="true" /><span>With love</span></footer>
-              </article>
-            ))}
+            {data.wishes.map(wish => <WishCard key={wish.id} wish={wish} />)}
           </div>
         )}
 

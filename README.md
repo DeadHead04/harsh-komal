@@ -17,3 +17,7 @@ This is the Render-compatible production edition of the Komal & Harsh wedding in
 - `/api/wishes?view=guestbook&q=&order=newest&page=1` returns paginated public fields plus counts. Existing `/api/wishes` callers retain their original response shape.
 - The generated hero uses optimized WebP assets (`wishes-hero-v1.webp`, 57 KB; mobile 20 KB). No API call is made by the website for image generation.
 - Local preview fixtures are kept only in an ignored `.data/wishes-page-preview.sqlite` file and are never deployed.
+
+Guestbook updates every 30 seconds while visible, and when returning to the tab or reconnecting. Long wishes have a six-line preview with an explicit full-message toggle. Existing messages remain visible if a background refresh fails.
+
+English translation is requested on demand through a server-only OpenAI Responses API call (`gpt-4.1-mini`). Set `OPENAI_API_KEY` in Render's secret environment; never put it in client code or Git. `/api/wishes/translate` accepts only an existing wish ID, shares only that public name/message with OpenAI, and caches the English result separately in SQLite. Original wishes are never overwritten. Concurrent identical requests share one call, with two concurrent translations and ten new attempts per minute allowed per process. The UI labels AI translations and supports switching back to the original. `/wishes` has no audio or video.
